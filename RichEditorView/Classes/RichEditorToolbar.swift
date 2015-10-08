@@ -96,7 +96,7 @@ public class RichEditorToolbar: UIView {
         setup()
     }
     
-    public required init?(coder aDecoder: NSCoder) {
+    public required init(coder aDecoder: NSCoder) {
         toolbarScroll = UIScrollView()
         toolbar = UIToolbar()
         backgroundToolbar = UIToolbar()
@@ -108,14 +108,14 @@ public class RichEditorToolbar: UIView {
         self.autoresizingMask = .FlexibleWidth
 
         backgroundToolbar.frame = self.bounds
-        backgroundToolbar.autoresizingMask = [.FlexibleHeight, .FlexibleWidth]
+        backgroundToolbar.autoresizingMask = .FlexibleHeight | .FlexibleWidth
 
         toolbar.autoresizingMask = .FlexibleWidth
         toolbar.setBackgroundImage(UIImage(), forToolbarPosition: .Any, barMetrics: .Default)
         toolbar.setShadowImage(UIImage(), forToolbarPosition: .Any)
 
         toolbarScroll.frame = self.bounds
-        toolbarScroll.autoresizingMask = [.FlexibleHeight, .FlexibleWidth]
+        toolbarScroll.autoresizingMask = .FlexibleHeight | .FlexibleWidth
         toolbarScroll.showsHorizontalScrollIndicator = false
         toolbarScroll.showsVerticalScrollIndicator = false
         toolbarScroll.backgroundColor = UIColor.clearColor()

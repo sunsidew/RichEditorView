@@ -130,7 +130,7 @@ public class RichEditorView: UIView {
         setup()
     }
 
-    required public init?(coder aDecoder: NSCoder) {
+    required public init(coder aDecoder: NSCoder) {
         webView = UIWebView()
         super.init(coder: aDecoder)
         setup()
@@ -143,7 +143,7 @@ public class RichEditorView: UIView {
         webView.delegate = self
         webView.keyboardDisplayRequiresUserAction = false
         webView.scalesPageToFit = false
-        webView.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
+        webView.autoresizingMask = .FlexibleWidth | .FlexibleHeight
         webView.dataDetectorTypes = .None
         webView.backgroundColor = UIColor.whiteColor()
         
@@ -157,9 +157,10 @@ public class RichEditorView: UIView {
         self.addSubview(webView)
         
         if let filePath = NSBundle(forClass: RichEditorView.self).pathForResource("rich_editor", ofType: "html") {
-            let url = NSURL(fileURLWithPath: filePath, isDirectory: false)
-            let request = NSURLRequest(URL: url)
-            webView.loadRequest(request)
+            if let url = NSURL(fileURLWithPath: filePath) {
+                let request = NSURLRequest(URL: url)
+                webView.loadRequest(request)
+            }
         }
     }
 }
@@ -346,7 +347,7 @@ extension RichEditorView: UIWebViewDelegate {
 
         // Handle pre-defined editor actions
         let callbackPrefix = "re-callback://"
-        if request.URL?.absoluteString.hasPrefix(callbackPrefix) == true {
+        if request.URL?.absoluteString?.hasPrefix(callbackPrefix) == true {
             
             // When we get a callback, we need to fetch the command queue to run the commands
             // It comes in as a JSON array of commands that we need to parse
@@ -354,9 +355,11 @@ extension RichEditorView: UIWebViewDelegate {
             if let data = (commands as NSString).dataUsingEncoding(NSUTF8StringEncoding) {
                 
                 let jsonCommands: [String]?
-                do {
-                    jsonCommands = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions(rawValue: 0)) as? [String]
-                } catch {
+                var err: NSError?
+                
+                if let tempJson = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions(rawValue: 0), error: &err) as? [String] {
+                    jsonCommands = tempJson
+                } else {
                     jsonCommands = nil
                     NSLog("Failed to parse JSON Commands")
                 }
@@ -437,7 +440,7 @@ extension RichEditorView {
             let char = unicode[i]
             if char.value == 39 { // 39 == ' in ASCII
                 let escaped = char.escape(asASCII: true)
-                newString.appendContentsOf(escaped)
+                newString.extend(escaped)
             } else {
                 newString.append(char)
             }
